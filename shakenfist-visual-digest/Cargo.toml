@@ -21,3 +21,9 @@ thiserror = { version = "2", optional = true }
 rqrr = { version = "0.9", optional = true }
 image = { version = "0.25", optional = true }
 serde = { version = "1", optional = true, features = ["derive"] }
+
+[dev-dependencies]
+# Used only in tests/qr.rs to generate synthetic QR codes from known payloads.
+# Not included in any production build.
+qrcodegen = "1"
+tempfile = "3"

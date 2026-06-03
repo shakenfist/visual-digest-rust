@@ -16,6 +16,9 @@ pub mod hashes;
 #[cfg(feature = "decode")]
 pub mod decoder;
 
+#[cfg(feature = "qr")]
+pub mod qr;
+
 // Re-export the public API at the crate root for caller convenience.
 // Sextant (step 1h) imports these names via
 // `shakenfist_visual_digest::{encode, ChannelHashes, ...}`.
@@ -31,3 +34,7 @@ pub use hashes::ChannelHashes;
 // Decoder re-exports, gated on the `decode` feature.
 #[cfg(feature = "decode")]
 pub use decoder::{decode, DecodeError, Digest, Record, UnknownRecord};
+
+// QR re-exports, gated on the `qr` feature.
+#[cfg(feature = "qr")]
+pub use qr::{decode_qr_png, decode_qr_rgba, QrError};

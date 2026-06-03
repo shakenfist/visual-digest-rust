@@ -25,12 +25,12 @@ modules:
 ```
 shakenfist-visual-digest/src/
 ├── lib.rs          (feature gates, re-exports)
-├── format.rs       (constants, wire types)          step 1c
-├── events.rs       (Event, Phase, BootloaderChoice) step 1c
-├── encoder.rs      (encode, event_tlv_bytes)        step 1c
-├── hashes.rs       (ChannelHashes)                  step 1c
-├── decoder.rs      (decode, Digest, Record)         step 1e
-└── qr.rs           (QR locate helpers)              step 1f
+├── format.rs       (constants, wire types)
+├── events.rs       (Event, Phase, BootloaderChoice)
+├── encoder.rs      (encode, event_tlv_bytes)
+├── hashes.rs       (ChannelHashes)
+├── decoder.rs      (decode, Digest, Record, DecodeError)  [decode feature]
+└── qr.rs           (QR locate helpers)                    [qr feature, step 1f]
 ```
 
 ## Feature flag matrix
@@ -67,8 +67,21 @@ Sextant materialises the slice from its ring buffer at the call site.
 `shakenfist/ryll` is the host-side test harness. It will consume the
 `qr` and `decode` features in phase 6. There is no dependency today.
 
+## Decoder public API
+
+The decoder (behind the `decode` feature) exposes:
+
+- `decode(bytes: &[u8]) -> Result<Digest, DecodeError>` — entry point.
+- `Digest` — fully decoded payload: `frame_counter`, `channel_hashes`,
+  `raw_records: Vec<Record>`, `unknown_records: Vec<UnknownRecord>`,
+  `framebuffer_hash`.
+- `Record` — type alias for `Event`; record and event have identical shape.
+- `UnknownRecord { tag: u8, value: Vec<u8> }` — forward-compat capture
+  for tags the decoder doesn't recognise.
+- `DecodeError` — `thiserror`-derived enum covering `Short`, `BadMagic`,
+  `UnsupportedSchemaVersion`, `RecordCountTooSmall`, `MalformedHashBlock`,
+  `MalformedRawRecord`, `TruncatedValue`, `Trailing`.
+
 ## Format specification
 
-The wire format spec will live in `docs/visual-digest-format.md` once
-step 1b lands. Until then, the canonical reference is
-`shakenfist/uncalibrated-sextant/docs/visual-digest-format.md`.
+The wire format spec lives in `docs/visual-digest-format.md`.

@@ -46,6 +46,8 @@ use crate::format::{CRC32C, MAX_RECORD_SIZE};
 /// annotation is added; if a field appears dead before the encoder
 /// lands, that is expected and benign — the compiler will not warn
 /// because `update` writes every field on every matching push.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct ChannelHashes {
     /// Running CRC32C over all `Event::Keypress` TLV records (tag 0x01).
     pub keypress: u32,

@@ -13,6 +13,9 @@ pub mod events;
 pub mod format;
 pub mod hashes;
 
+#[cfg(feature = "decode")]
+pub mod decoder;
+
 // Re-export the public API at the crate root for caller convenience.
 // Sextant (step 1h) imports these names via
 // `shakenfist_visual_digest::{encode, ChannelHashes, ...}`.
@@ -24,3 +27,7 @@ pub use format::{
     NUM_HASH_CHANNELS, RECORD_HASH_SIZE,
 };
 pub use hashes::ChannelHashes;
+
+// Decoder re-exports, gated on the `decode` feature.
+#[cfg(feature = "decode")]
+pub use decoder::{decode, DecodeError, Digest, Record, UnknownRecord};

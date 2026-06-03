@@ -82,6 +82,27 @@ The decoder (behind the `decode` feature) exposes:
   `UnsupportedSchemaVersion`, `RecordCountTooSmall`, `MalformedHashBlock`,
   `MalformedRawRecord`, `TruncatedValue`, `Trailing`.
 
+## QR helper public API
+
+The QR locate-and-decode helper (behind the `qr` feature) exposes:
+
+- `decode_qr_rgba(rgba, width, height) -> Option<Vec<u8>>` — Ryll's hot
+  path. Takes a raw RGBA framebuffer snapshot (e.g. from `SurfaceMirror`),
+  converts to luma (inverted so bright phosphor-green foreground appears dark
+  to rqrr's adaptive thresholding), detects QR grids, returns the first
+  decoded byte payload or `None`.
+- `decode_qr_png(path) -> Result<Vec<u8>, QrError>` — CLI entry point.
+  Opens a PNG via `image::open`, converts to RGBA, delegates to `decode_qr_rgba`.
+- `QrError` — `thiserror` enum: `Io`, `Decode(image::ImageError)`, `NoQrFound`.
+
+Raw-bytes decode: `rqrr::Grid::decode_to(&mut Vec<u8>)` writes ECC-corrected,
+mode-decoded bytes to the writer, bypassing UTF-8 validation. A 106-byte
+binary digest payload survives the round-trip intact.
+
+Sextant renders QR modules as phosphor-green (R=51, G=150, B=51) on black.
+This is the inverse of conventional QR polarity (dark modules on white), so
+the luma conversion inverts (255 − L) before passing to rqrr.
+
 ## Format specification
 
 The wire format spec lives in `docs/visual-digest-format.md`.

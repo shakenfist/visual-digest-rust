@@ -1,5 +1,26 @@
 #![cfg_attr(not(feature = "decode"), no_std)]
+//! Visual on-screen digest format shared between
+//! `shakenfist/uncalibrated-sextant` (encoder) and `shakenfist/ryll`
+//! (future decoder). The wire-format specification lives at
+//! `docs/visual-digest-format.md` in this repository.
+//!
+//! Default features = encoder only, `no_std`-safe. Enable the `decode`
+//! feature to add the decoder (requires `alloc`). See `Cargo.toml`
+//! for the full feature matrix.
 
-//! Visual on-screen digest format. See `docs/visual-digest-format.md`
-//! once step 1b lands. Encoder lands in step 1c; decoder in step 1e;
-//! QR helpers in step 1f.
+pub mod encoder;
+pub mod events;
+pub mod format;
+pub mod hashes;
+
+// Re-export the public API at the crate root for caller convenience.
+// Sextant (step 1h) imports these names via
+// `shakenfist_visual_digest::{encode, ChannelHashes, ...}`.
+pub use encoder::encode;
+pub use events::{BootloaderChoice, Event, Phase};
+pub use format::{
+    EncodeError, CRC32C, DIGEST_FIXED_OVERHEAD, DIGEST_HEADER_LEN, DIGEST_MAGIC,
+    DIGEST_PAYLOAD_CAPACITY, DIGEST_SCHEMA_VERSION, DIGEST_TRAILER_LEN, MAX_RECORD_SIZE,
+    NUM_HASH_CHANNELS, RECORD_HASH_SIZE,
+};
+pub use hashes::ChannelHashes;

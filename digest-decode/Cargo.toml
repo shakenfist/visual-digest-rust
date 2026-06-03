@@ -11,3 +11,12 @@ path = "src/main.rs"
 
 [dependencies]
 shakenfist-visual-digest = { path = "../shakenfist-visual-digest", features = ["cli"] }
+serde_json = "1"
+
+[dev-dependencies]
+assert_cmd = "2"
+tempfile = "3"
+qrcodegen = "1"
+image = "0.25"
+predicates = "3"
+serde_json = "1"

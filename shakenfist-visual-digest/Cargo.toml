@@ -1,0 +1,23 @@
+[package]
+name = "shakenfist-visual-digest"
+version = "0.0.1"
+edition = "2021"
+license = "Apache-2.0"
+description = "Visual on-screen digest format shared between shakenfist/uncalibrated-sextant and shakenfist/ryll"
+publish = false
+
+[features]
+default = []
+decode = ["dep:thiserror"]
+qr = ["dep:rqrr", "dep:image", "decode"]
+serde = ["dep:serde"]
+cli = ["decode", "qr", "serde"]
+
+[dependencies]
+crc = { version = "3", default-features = false }
+
+# Optional dependencies
+thiserror = { version = "2", optional = true }
+rqrr = { version = "0.9", optional = true }
+image = { version = "0.25", optional = true }
+serde = { version = "1", optional = true, features = ["derive"] }

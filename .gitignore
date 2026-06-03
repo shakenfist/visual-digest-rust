@@ -1,0 +1,17 @@
+# Rust build output
+/target/
+
+# Rust backup files
+*.rs.bk
+
+# Cargo.lock: this workspace contains a binary crate (digest-decode), so
+# Cargo.lock is committed per Rust API guidelines. Library-only workspaces
+# would conventionally omit Cargo.lock, but binary crates benefit from
+# reproducible builds. See: https://doc.rust-lang.org/cargo/faq.html
+# Cargo.lock  <-- deliberately NOT excluded
+
+# Local cargo cache (Docker-mounted; never committed)
+/.cargo-cache/
+
+# Claude Code session lock
+/.claude/scheduled_tasks.lock

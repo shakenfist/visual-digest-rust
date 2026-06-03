@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint and build
+    runs-on: [self-hosted, vm, debian-12]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        timeout-minutes: 5
+
+      - name: Build Docker image
+        run: docker build -t visual-digest-rust-dev .devcontainer/
+        timeout-minutes: 10
+
+      - name: Run rustfmt and clippy
+        run: ./scripts/check-rust.sh check
+        timeout-minutes: 10
+
+      - name: Run tests (all features)
+        run: |
+          docker run --rm \
+            -v "$PWD":/workspace \
+            -v "$PWD/.cargo-cache/registry":/build/.cargo/registry \
+            -v "$PWD/.cargo-cache/git":/build/.cargo/git \
+            -w /workspace \
+            -u "$(id -u):$(id -g)" \
+            -e HOME=/build \
+            visual-digest-rust-dev \
+            cargo test --workspace --all-features
+        timeout-minutes: 10
+
+      - name: Build (no default features, no_std smoke)
+        run: |
+          docker run --rm \
+            -v "$PWD":/workspace \
+            -v "$PWD/.cargo-cache/registry":/build/.cargo/registry \
+            -v "$PWD/.cargo-cache/git":/build/.cargo/git \
+            -w /workspace \
+            -u "$(id -u):$(id -g)" \
+            -e HOME=/build \
+            visual-digest-rust-dev \
+            cargo build --workspace --no-default-features
+        timeout-minutes: 10

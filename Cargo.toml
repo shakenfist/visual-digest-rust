@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "shakenfist-visual-digest",
+    "digest-decode",
+]
+resolver = "2"

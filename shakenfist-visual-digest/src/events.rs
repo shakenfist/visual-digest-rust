@@ -13,6 +13,7 @@
 /// Scene phases, ordered by progression through a single boot run.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum Phase {
     /// AWAITING OPERATOR — waiting for first keypress.
     Awaiting,
@@ -37,6 +38,7 @@ impl Phase {
 /// Operator's choice at the locked-bootloader R/I/A prompt.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum BootloaderChoice {
     /// Operator chose (R)etry — re-run the decryption attempt.
     Retry,
@@ -63,6 +65,7 @@ impl BootloaderChoice {
 /// `docs/visual-digest-format.md` for the full wire specification.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "snake_case"))]
 pub enum Event {
     /// A key was pressed by the operator.
     Keypress {

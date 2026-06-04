@@ -135,11 +135,13 @@ fn happy_path() {
         .expect("raw_records missing or not an array");
     assert_eq!(records.len(), 1, "expected exactly one raw record");
 
-    // The record must have a "Keypress" key (externally-tagged serde default).
+    // The record must have a "keypress" key (externally-tagged serde, with
+    // #[serde(rename_all = "snake_case")] applied to the Event enum so JSON
+    // consumers see lowercase tags).
     let record = &records[0];
     assert!(
-        record.get("Keypress").is_some(),
-        "expected raw_records[0] to have key 'Keypress', got: {record}"
+        record.get("keypress").is_some(),
+        "expected raw_records[0] to have key 'keypress', got: {record}"
     );
 }
 

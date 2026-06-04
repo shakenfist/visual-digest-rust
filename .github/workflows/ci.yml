@@ -41,7 +41,14 @@ jobs:
             cargo test --workspace --all-features
         timeout-minutes: 10
 
-      - name: Build (no default features, no_std smoke)
+      # Per-package no_std smoke. This MUST be `-p shakenfist-visual-digest`,
+      # not `--workspace`, because Cargo feature unification through
+      # `digest-decode`'s path dependency on the library with the `cli`
+      # feature would silently re-enable `decode`/`qr`/`serde` even under
+      # `--no-default-features` at the workspace level — defeating the
+      # check. The per-package form is what actually proves the library
+      # compiles without `std` (load-bearing for Sextant's UEFI consumer).
+      - name: Build library alone (no default features, real no_std smoke)
         run: |
           docker run --rm \
             -v "$PWD":/workspace \
@@ -51,5 +58,22 @@ jobs:
             -u "$(id -u):$(id -g)" \
             -e HOME=/build \
             visual-digest-rust-dev \
-            cargo build --workspace --no-default-features
+            cargo build -p shakenfist-visual-digest --no-default-features
+        timeout-minutes: 10
+
+      # Library-alone tests in no_std mode. These exercise the 13 encoder
+      # tests and the 3 golden-fixture tests without the decoder/qr/serde
+      # features pulled in. If something accidentally starts depending on
+      # `std` or `alloc` in the encoder hot path, this step fails.
+      - name: Test library alone (no default features)
+        run: |
+          docker run --rm \
+            -v "$PWD":/workspace \
+            -v "$PWD/.cargo-cache/registry":/build/.cargo/registry \
+            -v "$PWD/.cargo-cache/git":/build/.cargo/git \
+            -w /workspace \
+            -u "$(id -u):$(id -g)" \
+            -e HOME=/build \
+            visual-digest-rust-dev \
+            cargo test -p shakenfist-visual-digest --no-default-features
         timeout-minutes: 10

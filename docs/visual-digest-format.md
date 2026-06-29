@@ -191,9 +191,16 @@ default repr discriminants. The wire values are:
 - `PHASE_AWAITING = 0x00`
 - `PHASE_BOOTING = 0x01`
 - `PHASE_PARKED = 0x02`
+- `PHASE_STREAM_EXERCISE = 0x03`
 - `CHOICE_RECOVER = 0x00`
 - `CHOICE_IGNORE = 0x01`
 - `CHOICE_ANYWAY = 0x02`
+
+`PHASE_STREAM_EXERCISE` marks the `INITIALIZING STREAM ENCODER`
+scene that runs between `Awaiting` and `Booting`. It exists to
+deterministically trigger spice-server's stream-creation
+heuristic; see uncalibrated-sextant's `docs/scenes.md` and the
+upstream spice-server bug report linked from there.
 
 These wire numbers are stable across reorderings of the Rust
 enum variants. Reorder the source freely; the wire stays put.

@@ -186,6 +186,83 @@ mod decode_tests {
         assert_eq!(digest.raw_records[2], e8, "raw_records[2] = ModeCycle");
     }
 
+    /// Wire round-trip for `Phase::StreamExercise`. The variant was added
+    /// alongside uncalibrated-sextant's `run_stream_exercise` scene
+    /// (reproducer for the upstream spice-server SIGSYS crash); this test
+    /// confirms the wire discriminant survives encode → decode in both
+    /// `from` and `to` positions of a `SceneTransition` record. Catches
+    /// regressions where someone reorders the `Phase` enum or forgets to
+    /// extend `decode_phase` after adding a fourth variant.
+    #[test]
+    fn round_trip_phase_stream_exercise() {
+        use shakenfist_visual_digest::encode;
+
+        // Two transitions: Awaiting → StreamExercise (the scene starts)
+        // and StreamExercise → Booting (the scene completes and hands
+        // off). Together they exercise StreamExercise as both `to` and
+        // `from`.
+        let e1 = Event::SceneTransition {
+            from: Phase::Awaiting,
+            to: Phase::StreamExercise,
+            timestamp_ms: 0x0000_0000_2000_0001,
+        };
+        let e2 = Event::SceneTransition {
+            from: Phase::StreamExercise,
+            to: Phase::Booting,
+            timestamp_ms: 0x0000_0000_2000_0002,
+        };
+
+        let mut channel_hashes = ChannelHashes::new();
+        channel_hashes.update(&e1);
+        channel_hashes.update(&e2);
+
+        let mut buf = [0u8; shakenfist_visual_digest::DIGEST_PAYLOAD_CAPACITY];
+        let len = encode(
+            &[&e1, &e2],
+            0xAAAA_AAAA,
+            0xBBBB_BBBB,
+            &channel_hashes,
+            &mut buf,
+        )
+        .expect("encode failed");
+
+        let digest = decode(&buf[..len]).expect("decode failed");
+
+        assert_eq!(digest.frame_counter, 0xAAAA_AAAA, "frame_counter");
+        assert_eq!(digest.framebuffer_hash, 0xBBBB_BBBB, "framebuffer_hash");
+        assert!(
+            digest.unknown_records.is_empty(),
+            "unknown_records must be empty"
+        );
+        assert_eq!(digest.channel_hashes, channel_hashes, "channel_hashes");
+
+        // The encoder selects the most-recent N events that fit; the
+        // decoder yields them in chronological (oldest-first) order.
+        // Both transitions fit the budget, so we get both back in
+        // input order.
+        assert_eq!(digest.raw_records.len(), 2, "raw_records length");
+        match &digest.raw_records[0] {
+            Event::SceneTransition { from, to, .. } => {
+                assert_eq!(*from, Phase::Awaiting);
+                assert_eq!(*to, Phase::StreamExercise);
+            }
+            other => panic!(
+                "raw_records[0] not the expected SceneTransition: {:?}",
+                other
+            ),
+        }
+        match &digest.raw_records[1] {
+            Event::SceneTransition { from, to, .. } => {
+                assert_eq!(*from, Phase::StreamExercise);
+                assert_eq!(*to, Phase::Booting);
+            }
+            other => panic!(
+                "raw_records[1] not the expected SceneTransition: {:?}",
+                other
+            ),
+        }
+    }
+
     // =========================================================================
     // Forward-compatibility test
     // =========================================================================

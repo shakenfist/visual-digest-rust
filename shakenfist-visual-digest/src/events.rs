@@ -17,6 +17,12 @@
 pub enum Phase {
     /// AWAITING OPERATOR — waiting for first keypress.
     Awaiting,
+    /// `INITIALIZING STREAM ENCODER` — fixed-duration scene that
+    /// deterministically triggers spice-server's stream-creation
+    /// heuristic. Reproduces the upstream
+    /// `gst_init_check()`-under-seccomp SIGSYS crash on vulnerable
+    /// hypervisors. Falls through to `Booting` on completion.
+    StreamExercise,
     /// Boot sequence playing out.
     Booting,
     /// Parked on SYSTEM ONLINE screen, waiting for final keypress.
@@ -29,6 +35,7 @@ impl Phase {
     pub fn tag(&self) -> &'static str {
         match self {
             Phase::Awaiting => "awaiting",
+            Phase::StreamExercise => "stream_exercise",
             Phase::Booting => "booting",
             Phase::Parked => "parked",
         }

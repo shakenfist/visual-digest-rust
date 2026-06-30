@@ -86,6 +86,11 @@ pub const PHASE_AWAITING: u8 = 0x00;
 pub const PHASE_BOOTING: u8 = 0x01;
 /// Wire discriminant for `Phase::Parked`.
 pub const PHASE_PARKED: u8 = 0x02;
+/// Wire discriminant for `Phase::StreamExercise` — fixed-duration
+/// scene that runs between `Awaiting` and `Booting`, used to
+/// deterministically trigger spice-server's stream-creation
+/// heuristic for the upstream SIGSYS reproducer.
+pub const PHASE_STREAM_EXERCISE: u8 = 0x03;
 
 /// Wire discriminant for `BootloaderChoice::Retry`.
 pub const CHOICE_RECOVER: u8 = 0x00;
@@ -158,6 +163,7 @@ pub enum EncodeError {
 pub fn phase_wire(phase: Phase) -> u8 {
     match phase {
         Phase::Awaiting => PHASE_AWAITING,
+        Phase::StreamExercise => PHASE_STREAM_EXERCISE,
         Phase::Booting => PHASE_BOOTING,
         Phase::Parked => PHASE_PARKED,
     }

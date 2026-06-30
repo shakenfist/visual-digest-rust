@@ -20,6 +20,19 @@ jobs:
         uses: actions/checkout@v4
         timeout-minutes: 5
 
+      - name: Install docker if missing
+        run: |
+          if ! command -v docker >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends docker.io
+            sudo systemctl enable --now docker \
+              || sudo service docker start \
+              || true
+          fi
+          sudo chmod 666 /var/run/docker.sock || true
+          docker --version
+        timeout-minutes: 5
+
       - name: Build Docker image
         run: docker build -t visual-digest-rust-dev .devcontainer/
         timeout-minutes: 10

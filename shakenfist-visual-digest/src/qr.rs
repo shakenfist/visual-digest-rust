@@ -13,7 +13,7 @@
 //!
 //! ## Raw-bytes decode
 //!
-//! rqrr 0.9's [`rqrr::Grid::decode`] returns `(MetaData, String)`, which
+//! rqrr's [`rqrr::Grid::decode`] returns `(MetaData, String)`, which
 //! would lose non-UTF-8 bytes from a 106-byte binary payload through lossy
 //! conversion.  The correct path is [`rqrr::Grid::decode_to`], which writes
 //! raw decoded bytes (after ECC correction and de-interleaving) to any

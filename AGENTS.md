@@ -36,6 +36,25 @@ Build the Docker image first if it does not exist:
 docker build -t visual-digest-rust-dev .devcontainer/
 ```
 
+The `Makefile` wraps these in convenience targets (`make build`,
+`make test`, `make lint`, `make lint-fix`) that use the same Docker
+image and cache mounts.
+
+## Releasing
+
+Only `shakenfist-visual-digest` is published to crates.io;
+`digest-decode` is `publish = false`. The release flow is two-phase and
+PR-gated, modelled on ryll:
+
+```bash
+make propose-release X.Y.Z   # branch off main, bump version, lint+test, push
+make tag-release X.Y.Z       # after the PR merges: tag main
+CARGO_REGISTRY_TOKEN=... make publish-crates   # upload (IRREVERSIBLE)
+```
+
+There is no tag-triggered release workflow — `make publish-crates` is
+the deliberate manual upload. See README.md "Releasing" for detail.
+
 ## no_std discipline — critical invariant
 
 The encoder (`shakenfist-visual-digest` with default features) MUST

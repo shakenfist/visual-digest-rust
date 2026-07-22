@@ -72,6 +72,31 @@ GitHub Actions via `.github/workflows/ci.yml`. Runs on self-hosted
 runners (`[self-hosted, vm, debian-12]`). Each job runs inside the
 same Docker image as local dev.
 
+## Releasing
+
+Only `shakenfist-visual-digest` is published to
+[crates.io](https://crates.io/crates/shakenfist-visual-digest). The
+`digest-decode` helper bin is `publish = false` and keeps its own
+version.
+
+The `Makefile` targets model ryll's two-phase, PR-gated release flow,
+and everything that touches Rust runs in the devcontainer (no native
+toolchain needed):
+
+```
+make propose-release X.Y.Z   # branch off main, bump version, lint+test, push for PR
+# ... open the release-X.Y.Z PR, review, merge ...
+make tag-release X.Y.Z       # tag the merged commit on main
+export CARGO_REGISTRY_TOKEN=...
+make publish-crates          # upload to crates.io (IRREVERSIBLE)
+```
+
+Unlike ryll there is no tag-triggered release workflow: the `vX.Y.Z`
+tag is just the canonical marker for the release commit, and
+`make publish-crates` is the deliberate, manual upload step. crates.io
+versions can never be reused, only yanked — `propose-release` refuses a
+version that already exists on crates.io.
+
 ## Planning trail
 
 This repo is part of the shakenfist test-harness project. Plans live in

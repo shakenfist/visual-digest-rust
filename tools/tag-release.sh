@@ -5,13 +5,13 @@
 # Run after the release-X.Y.Z PR from tools/propose-release.sh has been
 # reviewed and merged into main. Fetches origin/main, verifies its tip
 # carries the expected shakenfist-visual-digest version, and (after
-# confirmation) creates an annotated tag vX.Y.Z pointing at that commit
-# and pushes it.
+# confirmation) creates an annotated tag vX.Y.Z pointing at that commit,
+# pushes it, and creates the matching GitHub Release.
 #
 # Unlike ryll, this repo has no tag-triggered release workflow: the tag
-# is the canonical marker for "this commit is release X.Y.Z", and the
-# actual crates.io upload is the separate, deliberate `make
-# publish-crates` step (IRREVERSIBLE). Run that after tagging.
+# and GitHub Release are created here, and the actual crates.io upload
+# is the separate, deliberate `make publish-crates` step (IRREVERSIBLE).
+# Run that after tagging.
 #
 # Usage:
 #   tools/tag-release.sh VERSION
@@ -19,6 +19,8 @@
 #
 # Requirements on the host:
 #   - git
+#   - gh (optional): to create the GitHub Release. If absent, the tag is
+#     still pushed and the manual `gh release create` command is printed.
 
 set -euo pipefail
 
@@ -98,6 +100,30 @@ git tag -a "$TAG" -m "Release $VERSION" "$TARGET_SHA"
 
 info "Pushing tag $TAG"
 git push origin "$TAG"
+
+# --- GitHub Release ---
+#
+# There is no tag-triggered release workflow, so create the Release
+# here. Notes are auto-generated from the merged PRs since the previous
+# tag. Best-effort: a missing gh or a failed call never undoes the tag.
+
+REPO="shakenfist/visual-digest-rust"
+GH_RELEASE_CMD="gh release create $TAG --repo $REPO --title $TAG --verify-tag --generate-notes"
+
+if command -v gh >/dev/null; then
+    info "Creating GitHub Release $TAG"
+    if ! gh release create "$TAG" \
+            --repo "$REPO" \
+            --title "$TAG" \
+            --verify-tag \
+            --generate-notes; then
+        info "GitHub Release creation failed; create it manually with:"
+        info "  $GH_RELEASE_CMD"
+    fi
+else
+    info "gh not installed; skipping GitHub Release. Create it with:"
+    info "  $GH_RELEASE_CMD"
+fi
 
 echo
 info "Tagged $TAG."

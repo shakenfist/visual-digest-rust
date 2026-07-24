@@ -5,6 +5,7 @@ edition = "2021"
 license = "Apache-2.0"
 description = "Visual on-screen digest format shared between shakenfist/uncalibrated-sextant and shakenfist/ryll"
 repository = "https://github.com/shakenfist/visual-digest-rust"
+readme = "README.md"
 
 [features]
 default = []

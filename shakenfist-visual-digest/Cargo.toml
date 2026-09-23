@@ -28,3 +28,6 @@ serde = { version = "1", optional = true, features = ["derive"] }
 # Not included in any production build.
 qrcodegen = "1"
 tempfile = "3"
+
+[lints]
+workspace = true

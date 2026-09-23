@@ -4,3 +4,9 @@ members = [
     "digest-decode",
 ]
 resolver = "2"
+
+# unwrap() turns a recoverable error into a panic. Warn here and let the
+# `-D warnings` clippy run in scripts/check-rust.sh make it fatal, so a
+# refactor in progress still builds locally. clippy.toml exempts tests.
+[workspace.lints.clippy]
+unwrap_used = "warn"

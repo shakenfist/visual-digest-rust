@@ -75,6 +75,10 @@ Rules:
 - Formatting is managed by `rustfmt`. Do not fight it; run
   `./scripts/check-rust.sh fix` to apply it.
 - Clippy is run with `-D warnings`. All warnings are errors.
+- `clippy::unwrap_used` is on for production code (`clippy.toml`
+  exempts tests). The decoder reads untrusted screenshots, so return
+  an error instead; where a value is provably present, use
+  `expect("why")` or a helper such as `decoder.rs`'s `read_array`.
 - String literals: use the Rust idiom (double-quoted). The project's
   Python convention of preferring single quotes does not apply here.
 - Line wrapping: `rustfmt` handles Rust source. For shell scripts and

@@ -4,7 +4,8 @@
 //!
 //! ## Synthetic fixtures — rationale and deviation from phase plan
 //!
-//! The phase-plan brief (step 1f, PLAN-test-harness-phase-01-digest-crate.md)
+//! The phase-plan brief (step 1f of
+//! <https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness-phase-01-digest-crate.md>)
 //! mentions capturing fixture PNGs from Sextant under QEMU via
 //! `scripts/screenshot.sh`.  Running QEMU + Docker from a sub-agent is
 //! fragile and non-deterministic, so this step uses **synthetic** PNG

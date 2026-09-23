@@ -70,8 +70,8 @@ Or use the wrapper script (also used by pre-commit and CI):
 ## CI
 
 GitHub Actions via `.github/workflows/ci.yml`. Runs on self-hosted
-runners (`[self-hosted, vm, debian-12]`). Each job runs inside the
-same Docker image as local dev.
+Debian 13 runners. Each job runs inside the same Docker image as local
+dev.
 
 ## Releasing
 

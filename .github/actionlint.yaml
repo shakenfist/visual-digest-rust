@@ -7,7 +7,8 @@
 self-hosted-runner:
   labels:
     - vm
-    - debian-12
+    - debian-13
+    - debian-13-docker
     - xs
     - s
     - m

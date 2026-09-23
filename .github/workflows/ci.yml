@@ -16,26 +16,13 @@ jobs:
     # Builds the devcontainer image and then compiles the workspace three
     # times (all features, and the library alone for build and test).
     # m is 4 vCPU; xs, the conductor's default, would be one.
-    runs-on: [self-hosted, vm, debian-12, m]
+    runs-on: [self-hosted, vm, debian-13-docker, m]
     # A backstop above the sum of the per-step timeouts below.
     timeout-minutes: 70
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        timeout-minutes: 5
-
-      - name: Install docker if missing
-        run: |
-          if ! command -v docker >/dev/null 2>&1; then
-            sudo apt-get update -qq
-            sudo apt-get install -y --no-install-recommends docker.io
-            sudo systemctl enable --now docker \
-              || sudo service docker start \
-              || true
-          fi
-          sudo chmod 666 /var/run/docker.sock || true
-          docker --version
         timeout-minutes: 5
 
       - name: Build Docker image

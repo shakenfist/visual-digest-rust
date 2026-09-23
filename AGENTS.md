@@ -70,6 +70,9 @@ Rules:
   false` to satisfy the `no_std` constraint.
 - Do not add `std`-requiring crates to default dependencies.
 
+Which feature needs `std` is tabulated in the feature flag matrix in
+`ARCHITECTURE.md`; update it there when adding or changing a feature.
+
 ## Code conventions
 
 - Formatting is managed by `rustfmt`. Do not fight it; run
@@ -83,16 +86,6 @@ Rules:
   Python convention of preferring single quotes does not apply here.
 - Line wrapping: `rustfmt` handles Rust source. For shell scripts and
   documentation, wrap at 80 characters.
-
-## Feature flag matrix
-
-| Feature   | Enables                                | Requires `std`? |
-|-----------|----------------------------------------|-----------------|
-| (default) | Encoder only                           | No (`no_std`)   |
-| `decode`  | Decoder + `thiserror`                  | Yes             |
-| `qr`      | QR locate helper + `rqrr` + `image`    | Yes             |
-| `serde`   | `serde::Serialize` on decoded types    | No (via `serde`)  |
-| `cli`     | All of `decode` + `qr` + `serde`       | Yes             |
 
 ## Cross-repo relationships
 

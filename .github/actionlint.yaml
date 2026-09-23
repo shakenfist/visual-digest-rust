@@ -8,3 +8,8 @@ self-hosted-runner:
   labels:
     - vm
     - debian-12
+    - xs
+    - s
+    - m
+    - l
+    - xl

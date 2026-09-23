@@ -13,7 +13,12 @@ permissions:
 jobs:
   check:
     name: Lint and build
-    runs-on: [self-hosted, vm, debian-12]
+    # Builds the devcontainer image and then compiles the workspace three
+    # times (all features, and the library alone for build and test).
+    # m is 4 vCPU; xs, the conductor's default, would be one.
+    runs-on: [self-hosted, vm, debian-12, m]
+    # A backstop above the sum of the per-step timeouts below.
+    timeout-minutes: 70
 
     steps:
       - name: Checkout code

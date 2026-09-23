@@ -93,3 +93,20 @@ jobs:
             visual-digest-rust-dev \
             cargo test -p shakenfist-visual-digest --no-default-features
         timeout-minutes: 10
+
+  automated_reviewer:
+    name: Automated reviewer
+    # The needs: list is the "review only once CI has passed" gate: a
+    # job skipped because a dependency failed never starts the reusable
+    # workflow. Everything else about the reviewer -- runner, timeout,
+    # fork restriction, bot-commit check -- lives in the shared workflow
+    # so it stays in step with the rest of the fleet. It reads no
+    # secrets, so none are passed.
+    needs: [check]
+    # A cross-repository reusable workflow cannot grant itself more
+    # token scope than its caller has, so the permissions go here.
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    uses: shakenfist/actions/.github/workflows/pr-auto-review.yml@main

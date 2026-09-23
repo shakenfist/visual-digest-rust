@@ -26,7 +26,9 @@ telemetry.
 
 ## Format specification
 
-The wire format is documented in `docs/visual-digest-format.md`.
+The wire format (header, hash block, raw event records and trailer) is
+documented in
+[docs/visual-digest-format.md](https://github.com/shakenfist/visual-digest-rust/blob/develop/docs/visual-digest-format.md).
 
 ## Building
 

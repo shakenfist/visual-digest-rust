@@ -42,3 +42,34 @@ jobs:
       # Just this hook: the others run in ci.yml.
       - name: Run skillsaw
         run: pre-commit run skillsaw --all-files
+
+  # gitleaks is pinned by version and sha256 rather than taken from the
+  # distribution: its config schema and rule set change between
+  # releases, and a detector which silently changes behaviour under us
+  # is worse than none. 8.16.0 matches shakenfist/shakenfist. To move
+  # the pin, run tools/gitleaks-scan.sh against the new version locally
+  # first and check the positive control still passes.
+  gitleaks:
+    name: Credential scan
+    runs-on: [self-hosted, static]
+    timeout-minutes: 10
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-gitleaks
+      cancel-in-progress: true
+    steps:
+      # fetch-depth: 0 is load bearing: the scan covers every commit
+      # reachable from HEAD, and a secret committed then reverted still
+      # needs rotating. The script refuses a shallow clone.
+      - name: Checkout code with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          curl -sSLo "${RUNNER_TEMP}/gitleaks.tar.gz" https://github.com/gitleaks/gitleaks/releases/download/v8.16.0/gitleaks_8.16.0_linux_x64.tar.gz
+          echo "f8d4fabedaeaabd2a3e7e7b96394b8ddeff0be32941a1719aedee08fc8678601  ${RUNNER_TEMP}/gitleaks.tar.gz" | sha256sum -c -
+          tar xzf "${RUNNER_TEMP}/gitleaks.tar.gz" -C "${RUNNER_TEMP}" gitleaks
+
+      - name: Scan history for credentials
+        run: tools/gitleaks-scan.sh --gitleaks "${RUNNER_TEMP}/gitleaks"

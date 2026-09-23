@@ -1,10 +1,21 @@
 name: CI
 
+# Documentation cannot affect the build, so a change touching only
+# docs/ skips this workflow. That is only safe while nothing here backs
+# a required status check: a required check in a paths-ignore'd workflow
+# never reports on a filtered pull request and blocks the merge forever.
+# If this workflow becomes a required check, replace the paths-ignore
+# with a check_paths filter job (see kerbside's functional-tests.yml).
+# The content scanners in content-scan.yml deliberately run regardless.
 on:
   push:
     branches: [develop]
+    paths-ignore:
+      - 'docs/**'
   pull_request:
     branches: [develop]
+    paths-ignore:
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:

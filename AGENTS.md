@@ -97,12 +97,13 @@ Rules:
 ## Cross-repo relationships
 
 - **shakenfist/uncalibrated-sextant** — UEFI firmware; consumes this
-  crate with default features (encoder, `no_std`). It depends via
-  `git = "..."` rather than crates.io (see plan decisions). Any change
-  to the encoder's public API or wire output must be coordinated with a
-  corresponding change in Sextant (step 1h of the phase 1 plan).
-- **shakenfist/ryll** — Host-side test harness; will consume the `qr`
-  and `decode` features in phase 6. No dependency yet.
+  crate with default features (encoder, `no_std`), pinned to a git
+  `rev` rather than a crates.io version. Any change to the encoder's
+  public API or wire output must be coordinated with a corresponding
+  change in Sextant.
+- **shakenfist/ryll** — Host-side test harness; depends on the
+  crates.io release with the `qr` and `serde` features, behind
+  `shakenfist-spice-renderer`'s optional `digest-decode` feature.
 
 ## Planning trail
 
@@ -118,10 +119,7 @@ change to the crate's API surface, feature flags, or encoder behaviour.
 
 ## Wire format
 
-The visual-digest wire format spec will live at
-`docs/visual-digest-format.md` once step 1b lands. Until then, the
-authoritative reference is
-`shakenfist/uncalibrated-sextant/docs/visual-digest-format.md`.
+The visual-digest wire format spec is `docs/visual-digest-format.md`.
 
 **Do not change the wire format** without updating the spec doc and the
-golden test fixtures in `tests/golden/` (added in step 1d).
+golden test fixtures in `shakenfist-visual-digest/tests/golden/`.

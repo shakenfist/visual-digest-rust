@@ -19,8 +19,7 @@ visual-digest-rust/
         └── main.rs
 ```
 
-As the phase 1 steps land, the library will grow additional source
-modules:
+The library's source modules:
 
 ```
 shakenfist-visual-digest/src/
@@ -30,7 +29,7 @@ shakenfist-visual-digest/src/
 ├── encoder.rs      (encode, event_tlv_bytes)
 ├── hashes.rs       (ChannelHashes)
 ├── decoder.rs      (decode, Digest, Record, DecodeError)  [decode feature]
-└── qr.rs           (QR locate helpers)                    [qr feature, step 1f]
+└── qr.rs           (QR locate helpers)                    [qr feature]
 ```
 
 ## Feature flag matrix
@@ -53,19 +52,21 @@ The `#![cfg_attr(not(feature = "decode"), no_std)]` directive in
 ## Relationship to Sextant
 
 `shakenfist/uncalibrated-sextant` is the UEFI firmware that encodes
-and renders the visual digest. After step 1h it will consume this crate
-with default features (encoder only, `no_std`). The dependency is
-declared via `git = "https://github.com/shakenfist/visual-digest-rust"`
-rather than crates.io (publication deliberately deferred; see plan
-decisions).
+and renders the visual digest. It consumes this crate with default
+features (encoder only, `no_std`), declared via
+`git = "https://github.com/shakenfist/visual-digest-rust"` and pinned
+to a `rev` rather than taken from crates.io.
 
 The encoder API takes `events: &[&Event]` (not a `RingBuffer`) —
 Sextant materialises the slice from its ring buffer at the call site.
 
 ## Relationship to Ryll
 
-`shakenfist/ryll` is the host-side test harness. It will consume the
-`qr` and `decode` features in phase 6. There is no dependency today.
+`shakenfist/ryll` is the host-side test harness. Its
+`shakenfist-spice-renderer` crate depends on the crates.io release with
+the `qr` and `serde` features (`qr` pulls in `decode`), behind an
+optional `digest-decode` feature, and uses them to decode the digest
+from the guest's screen.
 
 ## Decoder public API
 

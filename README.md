@@ -13,7 +13,6 @@ telemetry.
   functionality (see `ARCHITECTURE.md` for the full feature matrix).
 - **`digest-decode`** — CLI binary that takes a PNG screenshot, locates
   the QR code, decodes the digest payload, and prints JSON to stdout.
-  Implemented in step 1g.
 
 ## Where it is consumed
 
@@ -21,13 +20,13 @@ telemetry.
   — the UEFI firmware that encodes and renders the digest QR code.
   Uses the library with default features (encoder only, `no_std`).
 - **[shakenfist/ryll](https://github.com/shakenfist/ryll)** — the host
-  side test harness. Will consume the `qr` and `decode` features once
-  phase 6 of the test-harness plan lands.
+  side test harness. Uses the `qr` and `serde` features from crates.io
+  to decode digests off the guest's screen, in builds with its
+  `digest-decode` feature enabled.
 
 ## Format specification
 
-The wire format is documented in `docs/visual-digest-format.md`, which
-lands in step 1b of the phase 1 plan.
+The wire format is documented in `docs/visual-digest-format.md`.
 
 ## Building
 
@@ -99,10 +98,8 @@ version that already exists on crates.io.
 
 ## Planning trail
 
-This repo is part of the shakenfist test-harness project. Plans live in
-`shakenfist/kerbside`:
+This repo is part of the shakenfist test-harness project, whose plans
+live in `shakenfist/kerbside`:
 
-- Master plan:
-  `docs/plans/PLAN-test-harness.md`
-- Phase 1 (this repo):
-  `docs/plans/PLAN-test-harness-phase-01-digest-crate.md`
+- [The test-harness master plan](https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness.md)
+- [The plan for this crate](https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness-phase-01-digest-crate.md)

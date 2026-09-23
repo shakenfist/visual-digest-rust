@@ -3,7 +3,7 @@
 # Tag a release of shakenfist-visual-digest.
 #
 # Run after the release-X.Y.Z PR from tools/propose-release.sh has been
-# reviewed and merged into main. Fetches origin/main, verifies its tip
+# reviewed and merged into develop. Fetches origin/develop, verifies its tip
 # carries the expected shakenfist-visual-digest version, and (after
 # confirmation) creates an annotated tag vX.Y.Z pointing at that commit,
 # pushes it, and creates the matching GitHub Release.
@@ -45,10 +45,10 @@ TAG="v$VERSION"
 cd "$(dirname "$0")/.."
 [[ -f Cargo.toml ]] || err "could not find repo root"
 
-# --- fetch latest main ---
+# --- fetch latest develop ---
 
 info "Fetching origin"
-git fetch origin main --tags --quiet
+git fetch origin develop --tags --quiet
 
 # --- tag must not already exist ---
 
@@ -59,10 +59,10 @@ if git ls-remote --tags --exit-code origin "$TAG" >/dev/null 2>&1; then
     err "tag $TAG already exists on origin"
 fi
 
-# --- verify crate version on origin/main ---
+# --- verify crate version on origin/develop ---
 
-info "Verifying $CRATE version on origin/main"
-CRATE_TOML=$(git show "origin/main:$MANIFEST")
+info "Verifying $CRATE version on origin/develop"
+CRATE_TOML=$(git show "origin/develop:$MANIFEST")
 ACTUAL=$(printf '%s\n' "$CRATE_TOML" | awk '
     /^\[package\]/ { in_pkg=1; next }
     /^\[/ { in_pkg=0 }
@@ -74,17 +74,17 @@ ACTUAL=$(printf '%s\n' "$CRATE_TOML" | awk '
 ')
 
 [[ -n "$ACTUAL" ]] \
-    || err "could not read [package].version from origin/main:$MANIFEST"
+    || err "could not read [package].version from origin/develop:$MANIFEST"
 [[ "$ACTUAL" == "$VERSION" ]] \
-    || err "origin/main $CRATE version is $ACTUAL, expected $VERSION. Has the release-$VERSION PR been merged?"
+    || err "origin/develop $CRATE version is $ACTUAL, expected $VERSION. Has the release-$VERSION PR been merged?"
 
-TARGET_SHA=$(git rev-parse origin/main)
-TARGET_SUBJECT=$(git log -1 --format=%s origin/main)
+TARGET_SHA=$(git rev-parse origin/develop)
+TARGET_SUBJECT=$(git log -1 --format=%s origin/develop)
 
 # --- confirmation ---
 
 echo
-echo "About to tag $TAG at $TARGET_SHA on origin/main:"
+echo "About to tag $TAG at $TARGET_SHA on origin/develop:"
 echo "  $TARGET_SUBJECT"
 echo
 read -rp "Create and push tag $TAG? [y/N] " REPLY

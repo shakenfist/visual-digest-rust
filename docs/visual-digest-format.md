@@ -260,7 +260,7 @@ quiet zone runs to 212 px square, which overflows the current
 180 px region — switching would require either dropping module
 scale to 3 px or enlarging the region. Both are larger changes
 than the current scope covers; tracked under *Future work* in
-[uncalibrated-sextant/docs/plans/PLAN-visual-digest.md](https://github.com/shakenfist/uncalibrated-sextant/blob/main/docs/plans/PLAN-visual-digest.md).
+[uncalibrated-sextant/docs/plans/PLAN-visual-digest.md](https://github.com/shakenfist/uncalibrated-sextant/blob/develop/docs/plans/PLAN-visual-digest.md).
 
 ## Choice of ECC level
 

@@ -84,9 +84,9 @@ and everything that touches Rust runs in the devcontainer (no native
 toolchain needed):
 
 ```
-make propose-release X.Y.Z   # branch off main, bump version, lint+test, push for PR
+make propose-release X.Y.Z   # branch off develop, bump version, lint+test, push for PR
 # ... open the release-X.Y.Z PR, review, merge ...
-make tag-release X.Y.Z       # tag the merged commit on main
+make tag-release X.Y.Z       # tag the merged commit on develop
 export CARGO_REGISTRY_TOKEN=...
 make publish-crates          # upload to crates.io (IRREVERSIBLE)
 ```

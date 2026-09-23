@@ -47,8 +47,8 @@ Only `shakenfist-visual-digest` is published to crates.io;
 PR-gated, modelled on ryll:
 
 ```bash
-make propose-release X.Y.Z   # branch off main, bump version, lint+test, push
-make tag-release X.Y.Z       # after the PR merges: tag main
+make propose-release X.Y.Z   # branch off develop, bump version, lint+test, push
+make tag-release X.Y.Z       # after the PR merges: tag develop
 CARGO_REGISTRY_TOKEN=... make publish-crates   # upload (IRREVERSIBLE)
 ```
 

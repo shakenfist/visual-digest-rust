@@ -2,15 +2,15 @@
 #
 # Propose a release of shakenfist-visual-digest.
 #
-# Creates a `release-X.Y.Z` branch from main, bumps the
+# Creates a `release-X.Y.Z` branch from develop, bumps the
 # shakenfist-visual-digest package version, refreshes Cargo.lock, runs
 # the lint and test gates in the devcontainer, and (after
 # confirmation) commits and pushes the branch. Does NOT open a PR and
 # does NOT tag — both happen outside the script:
 #
 #   1. Run this script (or `make propose-release X.Y.Z`).
-#   2. Open a PR from release-X.Y.Z to main, review, and merge it.
-#   3. Run `make tag-release X.Y.Z` to tag the merge commit on main.
+#   2. Open a PR from release-X.Y.Z to develop, review, and merge it.
+#   3. Run `make tag-release X.Y.Z` to tag the merge commit on develop.
 #   4. Run `make publish-crates` to publish to crates.io.
 #
 # Only shakenfist-visual-digest is versioned/published; the
@@ -18,7 +18,7 @@
 # version.
 #
 # Modelled on ryll's tools/propose-release.sh, adapted for the single
-# publishable crate and the `main` branch. The version bump is a
+# publishable crate and the `develop` branch. The version bump is a
 # targeted sed on the one [package] version line rather than
 # cargo-release, so no extra host toolchain is required — everything
 # that touches Rust runs in the devcontainer.
@@ -62,17 +62,17 @@ cd "$(dirname "$0")/.."
 info "Checking git state"
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-[[ "$BRANCH" == "main" ]] \
-    || err "must be on main, currently on: $BRANCH"
+[[ "$BRANCH" == "develop" ]] \
+    || err "must be on develop, currently on: $BRANCH"
 
 [[ -z "$(git status --porcelain)" ]] \
     || err "working tree is dirty; commit or stash first"
 
-git fetch origin main --quiet
+git fetch origin develop --quiet
 LOCAL=$(git rev-parse HEAD)
-REMOTE=$(git rev-parse origin/main)
+REMOTE=$(git rev-parse origin/develop)
 [[ "$LOCAL" == "$REMOTE" ]] \
-    || err "local main is not in sync with origin/main"
+    || err "local develop is not in sync with origin/develop"
 
 if git rev-parse "$TAG" >/dev/null 2>&1; then
     err "tag $TAG already exists locally"
@@ -105,16 +105,16 @@ esac
 
 # --- create release branch ---
 
-info "Creating branch $RELEASE_BRANCH from main"
+info "Creating branch $RELEASE_BRANCH from develop"
 git switch -c "$RELEASE_BRANCH"
 
 # Clean up the branch if the script aborts before a successful push.
 CLEANUP_BRANCH=1
 cleanup() {
     if [[ "${CLEANUP_BRANCH:-0}" == "1" ]]; then
-        info "Cleaning up: switching back to main and deleting $RELEASE_BRANCH"
+        info "Cleaning up: switching back to develop and deleting $RELEASE_BRANCH"
         git checkout -- . 2>/dev/null || true
-        git switch main 2>/dev/null || true
+        git switch develop 2>/dev/null || true
         git branch -D "$RELEASE_BRANCH" 2>/dev/null || true
     fi
 }
@@ -175,9 +175,9 @@ echo
 info "Release proposed on branch $RELEASE_BRANCH."
 echo
 echo "Next steps:"
-echo "  1. Open a PR from $RELEASE_BRANCH into main:"
+echo "  1. Open a PR from $RELEASE_BRANCH into develop:"
 echo "     https://github.com/shakenfist/visual-digest-rust/pull/new/$RELEASE_BRANCH"
 echo "  2. Get it reviewed and merged."
-echo "  3. Run 'make tag-release $VERSION' to tag main."
+echo "  3. Run 'make tag-release $VERSION' to tag develop."
 echo "  4. Run 'make publish-crates' (with CARGO_REGISTRY_TOKEN set) to"
 echo "     publish $CRATE $VERSION to crates.io."

@@ -1,0 +1,44 @@
+name: Content scanners
+
+# Scanners that read the human-written text in the repository, kept
+# apart from ci.yml so they are never path filtered: a problem lands in
+# documentation or agent context as easily as in code, so these run on
+# every pull request, including documentation-only ones.
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Lints the agent context by running the pre-commit hook rather than
+  # invoking skillsaw directly, so .pre-commit-config.yaml's rev is the
+  # only place the version is written down and Renovate's pre-commit
+  # manager keeps the two from drifting apart.
+  skillsaw:
+    name: Lint agent context
+    runs-on: [self-hosted, vm, debian-13, s]
+    timeout-minutes: 15
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-skillsaw
+      cancel-in-progress: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Into a venv, not the system python: the runners enforce PEP 668,
+      # so a bare `pip install` is refused.
+      - name: Install pre-commit
+        run: |
+          python3 -m venv "${RUNNER_TEMP}/venv-skillsaw"
+          "${RUNNER_TEMP}/venv-skillsaw/bin/pip" install --quiet \
+              --disable-pip-version-check pre-commit
+          echo "${RUNNER_TEMP}/venv-skillsaw/bin" >> "${GITHUB_PATH}"
+
+      # Just this hook: the others run in ci.yml.
+      - name: Run skillsaw
+        run: pre-commit run skillsaw --all-files

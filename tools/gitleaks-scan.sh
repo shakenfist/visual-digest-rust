@@ -53,6 +53,12 @@ fi
 
 echo "Using gitleaks $("$GITLEAKS" version) from $GITLEAKS"
 
+if ! command -v ssh-keygen >/dev/null 2>&1; then
+    echo "ssh-keygen is needed to plant the positive control's private key."
+    echo "Install openssh-client."
+    exit 1
+fi
+
 if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
     echo "This is a shallow clone, so most of history cannot be scanned."
     echo "Check out with fetch-depth: 0."

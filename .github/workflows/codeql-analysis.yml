@@ -4,7 +4,8 @@ permissions: {}
 
 # Documentation changes cannot affect code analysis, so skip them. CodeQL
 # is not a required check, so it keeps a workflow-level paths-ignore
-# rather than a check_paths job. Keep the path list in sync with ci.yml.
+# rather than a check_paths job. Keep the path list in sync with ci.yml's
+# check_paths filter.
 on:
   push:
     branches: [develop]
@@ -32,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4

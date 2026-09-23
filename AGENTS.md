@@ -13,6 +13,10 @@ and UID mapping.
 # Auto-fix formatting and clippy --fix
 ./scripts/check-rust.sh fix
 
+# Credential scan of the history, as CI runs it (needs gitleaks and
+# ssh-keygen; the script plants a positive control first)
+tools/gitleaks-scan.sh
+
 # Full test suite
 docker run --rm -v "$PWD":/workspace -w /workspace \
     -v "$PWD/.cargo-cache/registry":/build/.cargo/registry \

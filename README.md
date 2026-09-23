@@ -69,9 +69,10 @@ Or use the wrapper script (also used by pre-commit and CI):
 
 ## CI
 
-GitHub Actions via `.github/workflows/ci.yml`. Runs on self-hosted
-Debian 13 runners. Each job runs inside the same Docker image as local
-dev.
+GitHub Actions on self-hosted runners. The build, lint and test job in
+`.github/workflows/ci.yml` runs inside the same Docker image as local
+dev; the content scanners, CodeQL and the automation workflows sit
+beside it in `.github/workflows/`.
 
 ## Releasing
 

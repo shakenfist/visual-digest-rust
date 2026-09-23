@@ -548,4 +548,47 @@ mod decode_tests {
             "expected Trailing {{ extra_bytes: 1 }}, got {err:?}"
         );
     }
+
+    // =========================================================================
+    // No-panic sweeps
+    // decode() promises never to panic on adversarial input, and its
+    // fixed-width reads rely on earlier length checks to stay in bounds.
+    // These sweep every truncation and every single-byte substitution of
+    // each golden fixture, asserting only that decode() returns.
+    // =========================================================================
+
+    const GOLDEN_FIXTURES: [&str; 3] =
+        ["empty.bin", "single_keypress.bin", "mixed_all_variants.bin"];
+
+    fn load_fixture(name: &str) -> Vec<u8> {
+        fs::read(golden_dir().join(name)).unwrap_or_else(|e| panic!("cannot read {name}: {e}"))
+    }
+
+    /// Every prefix of every fixture, including the empty slice.
+    #[test]
+    fn no_panic_on_any_truncation() {
+        for name in GOLDEN_FIXTURES {
+            let payload = load_fixture(name);
+            for n in 0..=payload.len() {
+                let _ = decode(&payload[..n]);
+            }
+        }
+    }
+
+    /// Every byte of every fixture replaced by every possible value. This
+    /// reaches the record-length bytes, so it exercises records whose
+    /// declared lengths overrun the trailer or disagree with their tag.
+    #[test]
+    fn no_panic_on_any_single_byte_substitution() {
+        for name in GOLDEN_FIXTURES {
+            let payload = load_fixture(name);
+            for offset in 0..payload.len() {
+                let mut mutated = payload.clone();
+                for value in 0..=u8::MAX {
+                    mutated[offset] = value;
+                    let _ = decode(&mutated);
+                }
+            }
+        }
+    }
 }

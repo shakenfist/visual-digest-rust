@@ -28,7 +28,7 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Into a venv, not the system python: the runners enforce PEP 668,
       # so a bare `pip install` is refused.
@@ -61,14 +61,19 @@ jobs:
       # reachable from HEAD, and a secret committed then reverted still
       # needs rotating. The script refuses a shallow clone.
       - name: Checkout code with full history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: 8.16.0
+          GITLEAKS_SHA256: f8d4fabedaeaabd2a3e7e7b96394b8ddeff0be32941a1719aedee08fc8678601
         run: |
-          curl -sSLo "${RUNNER_TEMP}/gitleaks.tar.gz" https://github.com/gitleaks/gitleaks/releases/download/v8.16.0/gitleaks_8.16.0_linux_x64.tar.gz
-          echo "f8d4fabedaeaabd2a3e7e7b96394b8ddeff0be32941a1719aedee08fc8678601  ${RUNNER_TEMP}/gitleaks.tar.gz" | sha256sum -c -
+          base=https://github.com/gitleaks/gitleaks/releases/download
+          curl -sSLo "${RUNNER_TEMP}/gitleaks.tar.gz" \
+            "${base}/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  ${RUNNER_TEMP}/gitleaks.tar.gz" | sha256sum -c -
           tar xzf "${RUNNER_TEMP}/gitleaks.tar.gz" -C "${RUNNER_TEMP}" gitleaks
 
       - name: Scan history for credentials

@@ -11,5 +11,8 @@ on:
 
 jobs:
   export-config:
+    # No secrets: the shared workflow authenticates with github.token
+    # under the permissions above and reads none, so inheriting would
+    # only put every secret this repository can see within reach of a
+    # workflow in another repository, pinned to a moving @main.
     uses: shakenfist/actions/.github/workflows/export-repo-config.yml@main
-    secrets: inherit

@@ -29,7 +29,7 @@ progressively more functionality:
 ## Wire format
 
 The wire-format specification lives at
-[`docs/visual-digest-format.md`](https://github.com/shakenfist/visual-digest-rust/blob/main/docs/visual-digest-format.md)
+[`docs/visual-digest-format.md`](https://github.com/shakenfist/visual-digest-rust/blob/develop/docs/visual-digest-format.md)
 in the repository.
 
 ## License

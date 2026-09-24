@@ -38,8 +38,8 @@ help:
 	@echo "  make devcontainer           - Build the development container"
 	@echo ""
 	@echo "Release (shakenfist-visual-digest only; digest-decode is publish = false):"
-	@echo "  make propose-release X.Y.Z  - Branch off main, bump version, push for PR"
-	@echo "  make tag-release X.Y.Z      - After PR merge: tag main"
+	@echo "  make propose-release X.Y.Z  - Branch off develop, bump version, push for PR"
+	@echo "  make tag-release X.Y.Z      - After PR merge: tag develop"
 	@echo "  make publish-crates         - Publish to crates.io (needs CARGO_REGISTRY_TOKEN; IRREVERSIBLE)"
 
 # Build the devcontainer image.
@@ -79,14 +79,14 @@ lint-fix:
 
 # Cutting a release is a two-phase operation so the version bump goes
 # through the normal PR review gate rather than landing directly on
-# main.
+# develop.
 #
 # Phase 1: `make propose-release X.Y.Z` creates a release-X.Y.Z branch
-# off main, bumps the shakenfist-visual-digest version, and pushes the
+# off develop, bumps the shakenfist-visual-digest version, and pushes the
 # branch for review.
 #
 # Phase 2: after the PR merges, `make tag-release X.Y.Z` tags the merge
-# commit on main. Then `make publish-crates` uploads to crates.io.
+# commit on develop. Then `make publish-crates` uploads to crates.io.
 #
 # The second word of MAKECMDGOALS is the version; the no-op rule below
 # catches X.Y.Z-shaped goals so make does not complain about "no rule

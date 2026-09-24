@@ -1,0 +1,33 @@
+# Runs Renovate dependency updater hourly on a self-hosted runner.
+#
+# Only the RENOVATE_AUTODISCOVER_FILTER value changes per repo.
+#
+# Template source: shakenfist/development/templates/renovate/
+
+name: Renovate dependency updater
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  renovate:
+    runs-on: [self-hosted, static]
+    # Renovate runs hourly; a wedged run should not hold a runner for
+    # GitHub's 360 minute default.
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@v46.3.1
+        with:
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          RENOVATE_AUTODISCOVER: "true"
+          RENOVATE_AUTODISCOVER_FILTER: "shakenfist/visual-digest-rust"

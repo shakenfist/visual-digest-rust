@@ -13,6 +13,10 @@ and UID mapping.
 # Auto-fix formatting and clippy --fix
 ./scripts/check-rust.sh fix
 
+# Credential scan of the history, as CI runs it (needs gitleaks and
+# ssh-keygen; the script plants a positive control first)
+tools/gitleaks-scan.sh
+
 # Full test suite
 docker run --rm -v "$PWD":/workspace -w /workspace \
     -v "$PWD/.cargo-cache/registry":/build/.cargo/registry \
@@ -47,8 +51,8 @@ Only `shakenfist-visual-digest` is published to crates.io;
 PR-gated, modelled on ryll:
 
 ```bash
-make propose-release X.Y.Z   # branch off main, bump version, lint+test, push
-make tag-release X.Y.Z       # after the PR merges: tag main
+make propose-release X.Y.Z   # branch off develop, bump version, lint+test, push
+make tag-release X.Y.Z       # after the PR merges: tag develop
 CARGO_REGISTRY_TOKEN=... make publish-crates   # upload (IRREVERSIBLE)
 ```
 
@@ -70,35 +74,33 @@ Rules:
   false` to satisfy the `no_std` constraint.
 - Do not add `std`-requiring crates to default dependencies.
 
+Which feature needs `std` is tabulated in the feature flag matrix in
+`ARCHITECTURE.md`; update it there when adding or changing a feature.
+
 ## Code conventions
 
 - Formatting is managed by `rustfmt`. Do not fight it; run
   `./scripts/check-rust.sh fix` to apply it.
 - Clippy is run with `-D warnings`. All warnings are errors.
+- `clippy::unwrap_used` is on for production code (`clippy.toml`
+  exempts tests). The decoder reads untrusted screenshots, so return
+  an error instead; where a value is provably present, use
+  `expect("why")` or a helper such as `decoder.rs`'s `read_array`.
 - String literals: use the Rust idiom (double-quoted). The project's
   Python convention of preferring single quotes does not apply here.
 - Line wrapping: `rustfmt` handles Rust source. For shell scripts and
   documentation, wrap at 80 characters.
 
-## Feature flag matrix
-
-| Feature   | Enables                                | Requires `std`? |
-|-----------|----------------------------------------|-----------------|
-| (default) | Encoder only                           | No (`no_std`)   |
-| `decode`  | Decoder + `thiserror`                  | Yes             |
-| `qr`      | QR locate helper + `rqrr` + `image`    | Yes             |
-| `serde`   | `serde::Serialize` on decoded types    | No (via `serde`)  |
-| `cli`     | All of `decode` + `qr` + `serde`       | Yes             |
-
 ## Cross-repo relationships
 
 - **shakenfist/uncalibrated-sextant** — UEFI firmware; consumes this
-  crate with default features (encoder, `no_std`). It depends via
-  `git = "..."` rather than crates.io (see plan decisions). Any change
-  to the encoder's public API or wire output must be coordinated with a
-  corresponding change in Sextant (step 1h of the phase 1 plan).
-- **shakenfist/ryll** — Host-side test harness; will consume the `qr`
-  and `decode` features in phase 6. No dependency yet.
+  crate with default features (encoder, `no_std`), pinned to a git
+  `rev` rather than a crates.io version. Any change to the encoder's
+  public API or wire output must be coordinated with a corresponding
+  change in Sextant.
+- **shakenfist/ryll** — Host-side test harness; depends on the
+  crates.io release with the `qr` and `serde` features, behind
+  `shakenfist-spice-renderer`'s optional `digest-decode` feature.
 
 ## Planning trail
 
@@ -114,10 +116,7 @@ change to the crate's API surface, feature flags, or encoder behaviour.
 
 ## Wire format
 
-The visual-digest wire format spec will live at
-`docs/visual-digest-format.md` once step 1b lands. Until then, the
-authoritative reference is
-`shakenfist/uncalibrated-sextant/docs/visual-digest-format.md`.
+The visual-digest wire format spec is `docs/visual-digest-format.md`.
 
 **Do not change the wire format** without updating the spec doc and the
-golden test fixtures in `tests/golden/` (added in step 1d).
+golden test fixtures in `shakenfist-visual-digest/tests/golden/`.

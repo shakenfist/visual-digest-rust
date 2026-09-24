@@ -140,7 +140,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
     // -------------------------------------------------------------------------
     // 2. Magic verification.
     // -------------------------------------------------------------------------
-    let magic: [u8; 4] = bytes[0..4].try_into().unwrap();
+    let magic: [u8; 4] = read_array(bytes, 0);
     if magic != DIGEST_MAGIC {
         return Err(DecodeError::BadMagic { found: magic });
     }
@@ -156,7 +156,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
     // -------------------------------------------------------------------------
     // 4. Frame counter (LE u32, offsets 5..9).
     // -------------------------------------------------------------------------
-    let frame_counter = u32::from_le_bytes(bytes[5..9].try_into().unwrap());
+    let frame_counter = u32::from_le_bytes(read_array(bytes, 5));
 
     // -------------------------------------------------------------------------
     // 5. Record count (offset 9).
@@ -203,7 +203,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                 reason: "hash record length byte is not 4",
             });
         }
-        hash_values[i] = u32::from_le_bytes(bytes[offset + 2..offset + 6].try_into().unwrap());
+        hash_values[i] = u32::from_le_bytes(read_array(bytes, offset + 2));
     }
 
     let channel_hashes = ChannelHashes {
@@ -221,7 +221,9 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
     // 7. Parse raw records starting at offset 58 until 4 bytes before end.
     //    Trailer occupies the last DIGEST_TRAILER_LEN = 4 bytes.
     // -------------------------------------------------------------------------
-    let trailer_start = bytes.len().checked_sub(DIGEST_TRAILER_LEN).unwrap();
+    // Cannot underflow: the MIN_PAYLOAD check above guarantees at least
+    // DIGEST_TRAILER_LEN bytes.
+    let trailer_start = bytes.len() - DIGEST_TRAILER_LEN;
     let mut pos = RAW_RECORDS_START; // 58
     let mut raw_records: Vec<Record> = Vec::new();
     let mut unknown_records: Vec<UnknownRecord> = Vec::new();
@@ -259,9 +261,9 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "Keypress value length must be 12",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
-                let unicode_u16 = u16::from_le_bytes(value_bytes[8..10].try_into().unwrap());
-                let scancode = u16::from_le_bytes(value_bytes[10..12].try_into().unwrap());
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
+                let unicode_u16 = u16::from_le_bytes(read_array(value_bytes, 8));
+                let scancode = u16::from_le_bytes(read_array(value_bytes, 10));
                 // Convert u16 back to char; use REPLACEMENT CHARACTER for invalid code points.
                 // The encoder narrows char to u16 (see encoder.rs), so out-of-range values
                 // would only appear from adversarial or corrupted payloads.
@@ -282,8 +284,8 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "LineRendered value length must be 10",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
-                let row = u16::from_le_bytes(value_bytes[8..10].try_into().unwrap()) as usize;
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
+                let row = u16::from_le_bytes(read_array(value_bytes, 8)) as usize;
                 raw_records.push(Event::LineRendered { row, timestamp_ms });
             }
             TAG_SCENE_TRANSITION => {
@@ -295,7 +297,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "SceneTransition value length must be 10",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
                 let from = decode_phase(value_bytes[8]).ok_or(DecodeError::MalformedRawRecord {
                     tag,
                     offset: pos,
@@ -321,7 +323,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "BootloaderDecision value length must be 13",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
                 let choice = decode_bootloader_choice(value_bytes[8]).ok_or(
                     DecodeError::MalformedRawRecord {
                         tag,
@@ -329,7 +331,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "BootloaderDecision: unknown choice discriminant",
                     },
                 )?;
-                let attempt = u32::from_le_bytes(value_bytes[9..13].try_into().unwrap());
+                let attempt = u32::from_le_bytes(read_array(value_bytes, 9));
                 raw_records.push(Event::BootloaderDecision {
                     choice,
                     attempt,
@@ -345,8 +347,8 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "PasteReceived value length must be 11",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
-                let len = u16::from_le_bytes(value_bytes[8..10].try_into().unwrap()) as usize;
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
+                let len = u16::from_le_bytes(read_array(value_bytes, 8)) as usize;
                 let correct = value_bytes[10] != 0;
                 raw_records.push(Event::PasteReceived {
                     len,
@@ -363,7 +365,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "BootloaderTimeout value length must be 8",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
                 raw_records.push(Event::BootloaderTimeout { timestamp_ms });
             }
             TAG_MODE_SWITCH => {
@@ -375,12 +377,11 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "ModeSwitch value length must be 16",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
-                let requested_w = u16::from_le_bytes(value_bytes[8..10].try_into().unwrap()) as u32;
-                let requested_h =
-                    u16::from_le_bytes(value_bytes[10..12].try_into().unwrap()) as u32;
-                let applied_w = u16::from_le_bytes(value_bytes[12..14].try_into().unwrap()) as u32;
-                let applied_h = u16::from_le_bytes(value_bytes[14..16].try_into().unwrap()) as u32;
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
+                let requested_w = u16::from_le_bytes(read_array(value_bytes, 8)) as u32;
+                let requested_h = u16::from_le_bytes(read_array(value_bytes, 10)) as u32;
+                let applied_w = u16::from_le_bytes(read_array(value_bytes, 12)) as u32;
+                let applied_h = u16::from_le_bytes(read_array(value_bytes, 14)) as u32;
                 raw_records.push(Event::ModeSwitch {
                     requested_w,
                     requested_h,
@@ -398,8 +399,8 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
                         reason: "ModeCycle value length must be 13",
                     });
                 }
-                let timestamp_ms = u64::from_le_bytes(value_bytes[0..8].try_into().unwrap());
-                let count = u32::from_le_bytes(value_bytes[8..12].try_into().unwrap());
+                let timestamp_ms = u64::from_le_bytes(read_array(value_bytes, 0));
+                let count = u32::from_le_bytes(read_array(value_bytes, 8));
                 let interrupted = value_bytes[12] != 0;
                 raw_records.push(Event::ModeCycle {
                     count,
@@ -433,8 +434,7 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
     // -------------------------------------------------------------------------
     // 9. Trailer: last 4 bytes = framebuffer_hash (LE u32).
     // -------------------------------------------------------------------------
-    let framebuffer_hash =
-        u32::from_le_bytes(bytes[trailer_start..trailer_start + 4].try_into().unwrap());
+    let framebuffer_hash = u32::from_le_bytes(read_array(bytes, trailer_start));
 
     Ok(Digest {
         frame_counter,
@@ -443,6 +443,19 @@ pub fn decode(bytes: &[u8]) -> Result<Digest, DecodeError> {
         unknown_records,
         framebuffer_hash,
     })
+}
+
+/// Copy `N` bytes starting at `at` into a fixed-size array, for handing to
+/// `from_le_bytes`. `N` is inferred from the call site.
+///
+/// Every caller reads a range already proven in bounds by an earlier length
+/// check, so this cannot fail in practice; an out-of-range read would panic
+/// on the slice index exactly as direct indexing does.
+#[inline]
+fn read_array<const N: usize>(bytes: &[u8], at: usize) -> [u8; N] {
+    let mut out = [0u8; N];
+    out.copy_from_slice(&bytes[at..at + N]);
+    out
 }
 
 /// Map a wire `u8` discriminant to a [`Phase`] variant.

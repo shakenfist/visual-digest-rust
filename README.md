@@ -13,7 +13,6 @@ telemetry.
   functionality (see `ARCHITECTURE.md` for the full feature matrix).
 - **`digest-decode`** — CLI binary that takes a PNG screenshot, locates
   the QR code, decodes the digest payload, and prints JSON to stdout.
-  Implemented in step 1g.
 
 ## Where it is consumed
 
@@ -21,13 +20,15 @@ telemetry.
   — the UEFI firmware that encodes and renders the digest QR code.
   Uses the library with default features (encoder only, `no_std`).
 - **[shakenfist/ryll](https://github.com/shakenfist/ryll)** — the host
-  side test harness. Will consume the `qr` and `decode` features once
-  phase 6 of the test-harness plan lands.
+  side test harness. Uses the `qr` and `serde` features from crates.io
+  to decode digests off the guest's screen, in builds with its
+  `digest-decode` feature enabled.
 
 ## Format specification
 
-The wire format is documented in `docs/visual-digest-format.md`, which
-lands in step 1b of the phase 1 plan.
+The wire format (header, hash block, raw event records and trailer) is
+documented in
+[docs/visual-digest-format.md](https://github.com/shakenfist/visual-digest-rust/blob/develop/docs/visual-digest-format.md).
 
 ## Building
 
@@ -68,9 +69,10 @@ Or use the wrapper script (also used by pre-commit and CI):
 
 ## CI
 
-GitHub Actions via `.github/workflows/ci.yml`. Runs on self-hosted
-runners (`[self-hosted, vm, debian-12]`). Each job runs inside the
-same Docker image as local dev.
+GitHub Actions on self-hosted runners. The build, lint and test job in
+`.github/workflows/ci.yml` runs inside the same Docker image as local
+dev; the content scanners, CodeQL and the automation workflows sit
+beside it in `.github/workflows/`.
 
 ## Releasing
 
@@ -84,9 +86,9 @@ and everything that touches Rust runs in the devcontainer (no native
 toolchain needed):
 
 ```
-make propose-release X.Y.Z   # branch off main, bump version, lint+test, push for PR
+make propose-release X.Y.Z   # branch off develop, bump version, lint+test, push for PR
 # ... open the release-X.Y.Z PR, review, merge ...
-make tag-release X.Y.Z       # tag the merged commit on main
+make tag-release X.Y.Z       # tag the merged commit on develop
 export CARGO_REGISTRY_TOKEN=...
 make publish-crates          # upload to crates.io (IRREVERSIBLE)
 ```
@@ -99,10 +101,8 @@ version that already exists on crates.io.
 
 ## Planning trail
 
-This repo is part of the shakenfist test-harness project. Plans live in
-`shakenfist/kerbside`:
+This repo is part of the shakenfist test-harness project, whose plans
+live in `shakenfist/kerbside`:
 
-- Master plan:
-  `docs/plans/PLAN-test-harness.md`
-- Phase 1 (this repo):
-  `docs/plans/PLAN-test-harness-phase-01-digest-crate.md`
+- [The test-harness master plan](https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness.md)
+- [The plan for this crate](https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness-phase-01-digest-crate.md)

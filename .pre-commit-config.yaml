@@ -26,6 +26,13 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files
 
+  # Lints the agent context (AGENTS.md and anything else handed to an
+  # agent). CI runs this hook too, from content-scan.yml.
+  - repo: https://github.com/stbenjam/skillsaw
+    rev: v0.20.0
+    hooks:
+      - id: skillsaw
+
   # Rust formatting and linting via Docker
   - repo: local
     hooks:

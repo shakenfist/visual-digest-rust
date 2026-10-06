@@ -19,7 +19,7 @@ crc = { version = "3", default-features = false }
 
 # Optional dependencies
 thiserror = { version = "2", optional = true }
-rqrr = { version = "0.10", optional = true }
+rqrr = { version = "0.11", optional = true }
 image = { version = "0.25", optional = true }
 serde = { version = "1", optional = true, features = ["derive"] }
 

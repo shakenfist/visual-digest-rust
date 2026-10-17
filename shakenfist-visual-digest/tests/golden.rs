@@ -19,8 +19,9 @@
 //! ```
 //!
 //! The fixtures must be sourced from a trusted encoder state. The
-//! initial seeding (step 1d of the test-harness plan) was sourced
-//! from the encoder right after the verbatim extraction in step 1c.
+//! initial fixtures were captured from the encoder immediately after
+//! it was copied verbatim out of Sextant's `src/digest.rs`, before any
+//! change to it, so they record Sextant's original output.
 //! Future regenerations should only happen alongside an intentional
 //! wire-format change with the new bytes traced back to the spec at
 //! `docs/visual-digest-format.md`.

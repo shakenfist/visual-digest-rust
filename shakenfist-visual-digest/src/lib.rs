@@ -20,7 +20,7 @@ pub mod decoder;
 pub mod qr;
 
 // Re-export the public API at the crate root for caller convenience.
-// Sextant (step 1h) imports these names via
+// Sextant imports these names via
 // `shakenfist_visual_digest::{encode, ChannelHashes, ...}`.
 pub use encoder::encode;
 pub use events::{BootloaderChoice, Event, Phase};

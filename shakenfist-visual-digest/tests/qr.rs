@@ -2,14 +2,13 @@
 //!
 //! All tests are gated on `cfg(feature = "qr")`.
 //!
-//! ## Synthetic fixtures — rationale and deviation from phase plan
+//! ## Synthetic fixtures — rationale
 //!
-//! The phase-plan brief (step 1f of
-//! <https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness-phase-01-digest-crate.md>)
-//! mentions capturing fixture PNGs from Sextant under QEMU via
-//! `scripts/screenshot.sh`.  Running QEMU + Docker from a sub-agent is
-//! fragile and non-deterministic, so this step uses **synthetic** PNG
-//! fixtures generated in-test using `qrcodegen`.  The synthetic approach:
+//! The fixture PNGs are not screenshots of Sextant under QEMU (as
+//! Sextant's `scripts/screenshot.sh` would produce): running QEMU and
+//! Docker from a test is fragile and non-deterministic, so these tests
+//! use **synthetic** PNG fixtures generated in-test using `qrcodegen`.
+//! The synthetic approach:
 //!
 //! * Encodes known input bytes (the three golden fixtures from
 //!   `tests/golden/`) into a QR using the same ECC level (Low) that
@@ -23,8 +22,8 @@
 //! * Gives precise expected values and runs fast in CI without QEMU.
 //!
 //! Byte-identity with Sextant's actual screenshot is validated end-to-end
-//! in step 1h's `make digest-payload-smoke` against the migrated Sextant,
-//! so the QR decoder's correctness against a real Sextant frame is covered
+//! by `make digest-payload-smoke` in the uncalibrated-sextant repo, so
+//! the QR decoder's correctness against a real Sextant frame is covered
 //! there.
 //!
 //! ## Adding a real-Sextant fixture

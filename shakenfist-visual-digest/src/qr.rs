@@ -108,7 +108,7 @@ pub fn decode_qr_rgba(rgba: &[u8], width: u32, height: u32) -> Option<Vec<u8>> {
 
 /// Locate and decode a QR code in a PNG file on disk.
 ///
-/// Used by the `digest-decode` CLI binary (step 1g).
+/// Used by the `digest-decode` CLI binary.
 ///
 /// # Errors
 ///

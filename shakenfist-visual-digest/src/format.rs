@@ -13,10 +13,10 @@ use crate::events::{BootloaderChoice, Event, Phase};
 /// with very high confidence against random noise.
 pub const DIGEST_MAGIC: [u8; 4] = *b"SXDG";
 
-/// Schema version of the wire format. Bumped from 1 to 2 in step 2c
-/// to signal that per-channel rolling-hash records (tags 0x11..=0x18)
-/// are now present in every payload. Existing raw event tags (0x01..=
-/// 0x08) are unchanged; the bump is informational rather than a hard
+/// Schema version of the wire format. Bumped from 1 to 2 to signal
+/// that per-channel rolling-hash records (tags 0x11..=0x18) are now
+/// present in every payload. Existing raw event tags (0x01..=0x08)
+/// are unchanged; the bump is informational rather than a hard
 /// break — a v1-only decoder that encounters v2 records sees unknown
 /// tags in the 0x10–0x1F reserved range and should skip them.
 pub const DIGEST_SCHEMA_VERSION: u8 = 0x02;

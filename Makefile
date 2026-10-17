@@ -81,11 +81,11 @@ lint-fix:
 # through the normal PR review gate rather than landing directly on
 # develop.
 #
-# Phase 1: `make propose-release X.Y.Z` creates a release-X.Y.Z branch
+# Step 1: `make propose-release X.Y.Z` creates a release-X.Y.Z branch
 # off develop, bumps the shakenfist-visual-digest version, and pushes the
 # branch for review.
 #
-# Phase 2: after the PR merges, `make tag-release X.Y.Z` tags the merge
+# Step 2: after the PR merges, `make tag-release X.Y.Z` tags the merge
 # commit on develop. Then `make publish-crates` uploads to crates.io.
 #
 # The second word of MAKECMDGOALS is the version; the no-op rule below

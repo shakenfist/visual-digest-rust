@@ -291,6 +291,40 @@ will reject v2 payloads entirely. See the step-3e finding in
 `uncalibrated-sextant/docs/plans/PLAN-continuous-digest-phase-03-closeout.md`
 for verification of ryll's specific behaviour.
 
+## Format ownership and stability
+
+This crate is the only home of the digest format. Sextant encodes with
+it and ryll decodes with it; Sextant's own
+`docs/visual-digest-format.md` is a pointer to this document, kept so
+that a search inside Sextant still lands somewhere useful.
+
+The format was moved here from Sextant's `src/digest.rs` without
+changing a byte on the wire, and it stays that way unless a change is
+deliberate. Three things hold it in place:
+
+- **Golden fixtures.** `shakenfist-visual-digest/tests/golden.rs`
+  encodes three fixed event sequences (no events, one keypress, one of
+  every variant) and compares the output byte for byte with the files
+  in `tests/golden/`. The fixtures were captured from the encoder as it
+  was copied out of Sextant, before any change to it, so they record
+  Sextant's original output. `tests/golden.rs` documents how to
+  regenerate them.
+- **Round trips.** The decoder tests encode the same sequences and
+  check that decoding returns the input events.
+- **Sextant's QEMU smoke.** `make digest-payload-smoke` in Sextant
+  exercises the integrated path the crate's tests cannot: walking the
+  ring buffer and hashing the framebuffer under OVMF.
+
+A deliberate change to the format means a schema version bump, an
+update to this document, regenerated golden fixtures in the same
+commit, and a coordinated rev bump in Sextant. The crate implements
+schema v2 only. The likely shape of a v3, a larger raw-record budget,
+is sketched under *Capacity budget* above.
+
+Why the event types, the encoder signature and the decoder's return
+types look the way they do is covered in
+[design-decisions.md](design-decisions.md).
+
 ## Provenance
 
 - Encoder: `shakenfist-visual-digest/src/encoder.rs::encode`

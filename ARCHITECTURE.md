@@ -107,3 +107,5 @@ the luma conversion inverts (255 − L) before passing to rqrr.
 ## Format specification
 
 The wire format spec lives in `docs/visual-digest-format.md`.
+The reasoning behind the API surface, feature flags and distribution
+is in `docs/design-decisions.md`.

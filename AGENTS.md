@@ -102,17 +102,11 @@ Which feature needs `std` is tabulated in the feature flag matrix in
   crates.io release with the `qr` and `serde` features, behind
   `shakenfist-spice-renderer`'s optional `digest-decode` feature.
 
-## Planning trail
+## Design decisions
 
-Phase plan (authoritative):
-`shakenfist/kerbside/docs/plans/PLAN-test-harness-phase-01-digest-crate.md`
-
-Master plan:
-`shakenfist/kerbside/docs/plans/PLAN-test-harness.md`
-
-The "Decisions baked into this plan" section of the phase plan is the
-primary reference for design decisions. Read it before proposing any
-change to the crate's API surface, feature flags, or encoder behaviour.
+`docs/design-decisions.md` is the reference for why the crate's API
+surface, feature flags and distribution are shaped as they are. Read it
+before proposing a change to any of them.
 
 ## Wire format
 

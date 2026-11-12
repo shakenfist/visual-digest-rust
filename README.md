@@ -99,10 +99,8 @@ tag is just the canonical marker for the release commit, and
 versions can never be reused, only yanked — `propose-release` refuses a
 version that already exists on crates.io.
 
-## Planning trail
+## Design decisions
 
-This repo is part of the shakenfist test-harness project, whose plans
-live in `shakenfist/kerbside`:
-
-- [The test-harness master plan](https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness.md)
-- [The plan for this crate](https://github.com/shakenfist/kerbside/blob/develop/docs/plans/PLAN-test-harness-phase-01-digest-crate.md)
+Why the API surface, feature flags and distribution look the way they
+do is recorded in
+[docs/design-decisions.md](https://github.com/shakenfist/visual-digest-rust/blob/develop/docs/design-decisions.md).
